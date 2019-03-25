@@ -3,7 +3,7 @@ import java.io.*;
 import java.lang.Process;
 
 
-public class server_ver4{
+public class server{
 
 
   public static void main(String[] args) throws IOException{
