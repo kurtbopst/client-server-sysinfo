@@ -5,7 +5,7 @@ import java.net.*;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class client_ver4{
+public class client{
 
     public static ClientThread[] threads;
 
