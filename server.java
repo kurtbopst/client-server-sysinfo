@@ -6,6 +6,7 @@ import java.lang.Process;
 public class server{
 
 
+  static boolean ONLINE = true;
   public static void main(String[] args) throws IOException{
 
     ServerSocket server = null;
@@ -21,75 +22,78 @@ public class server{
   try { //Listen and connect to a client on a portnumber
     server = new ServerSocket(portNumber, 100);
 
-    System.out.println("Successfully created a socket");
-
-    // Socket client = server.accept();
-    // PrintWriter out =
-    //   new PrintWriter(client.getOutputStream(), true);
-    // BufferedReader in = new BufferedReader(
-    //   new InputStreamReader(client.getInputStream()));
   } catch (IOException e){
       System.out.println(e);
   }
 
   try{
-      String inputLine;
-
-      boolean online = true;
-      
-
-
-
-
-      while (online) {
+      while (ONLINE) {
         Socket client = server.accept();
-        PrintWriter out =
-            new PrintWriter(client.getOutputStream(), true);
-        BufferedReader in = new BufferedReader(
-            new InputStreamReader(client.getInputStream()));
 
+        System.out.println("A new client entered the pain train");
 
-        while(!client.isClosed() && ((inputLine = in.readLine()) != null)){
-          System.out.println("The client requested " + inputLine);
-
-
-          if(inputLine.equals("Quit")){
-            System.out.println("Quiting upon client request..");
-            online = false;
-            client.close();
-            break;
-          } else {
-            try {
-              String line = "";
-              String value = "";
-              Process p = Runtime.getRuntime().exec(inputLine);
-              BufferedReader input =
-                new BufferedReader(new InputStreamReader(p.getInputStream()));
-                while ((line = input.readLine()) != null) {
-                   value += line + "boobs";
-            }
-            out.println(value);
-
-            input.close();
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-
-        }
-      }
-
+        new ServerThread(client).start();
       }
 
     }catch(IOException e){
         System.out.println("Error : " + e);
     }
-    //   } catch(IOException e){
-    //     System.out.println("Exception caught when trying to listen on port " +
-    //     portNumber + " or listening fo a connection\n");
-    //     System.out.println(e.getMessage());
-    //   }
-
-
-
   }
+
+}
+
+
+class ServerThread extends Thread {
+
+  private Socket socket;
+
+  public ServerThread(Socket socket){
+    this.socket = socket;
+  }
+
+  public void run() {
+
+    try{
+    String inputLine;
+    boolean online = true;
+
+    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+    BufferedReader in = new BufferedReader(
+      new InputStreamReader(socket.getInputStream()));
+
+    inputLine = in.readLine();
+    
+
+      System.out.println("A client requested " + inputLine);
+
+      if(inputLine.equals("Quit")){
+        System.out.println("Quiting upon client request..");
+        online = false;
+        socket.close();
+      } else {
+        try {
+            String line = "";
+            String value = "";
+            Process p = Runtime.getRuntime().exec(inputLine);
+            BufferedReader input =
+              new BufferedReader(new InputStreamReader(p.getInputStream()));
+            while ((line = input.readLine()) != null) {
+               value += line + "boobs";
+          }
+          out.println(value);
+
+          input.close();
+        }catch (Exception e) {
+         e.printStackTrace();
+        }
+
+      }
+    
+   
+  }catch (Exception e) {
+    e.printStackTrace();
+  }
+
+  } 
+
 }
